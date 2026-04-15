@@ -880,6 +880,31 @@ export class SparkComponent implements OnInit {
       description:
         'Akroma Spark cria legendas, ideias e roteiros para seu Instagram em segundos. IA treinada para o seu nicho, em português.',
     });
+
+    // SoftwareApplication schema — unlocks rich results (price, rating, category)
+    // in Google Search for product queries.
+    this.seo.setSchema({
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Akroma Spark',
+      description:
+        'Plataforma de geração de conteúdo com IA para Instagram, treinada em português e especializada por nicho.',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      url: 'https://spark.akroma.com.br/',
+      inLanguage: 'pt-BR',
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'BRL',
+        price: '97',
+        availability: 'https://schema.org/InStock',
+      },
+      provider: {
+        '@type': 'Organization',
+        name: 'Akroma',
+        url: 'https://akroma.com.br',
+      },
+    });
   }
 
   annual = false;
