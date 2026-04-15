@@ -28,7 +28,11 @@ This runs `npm run build` then uploads the browser artifact via
 `https://akroma-spark.pages.dev/` and eventually `https://spark.akroma.com.br/`
 once DNS cutover completes (Phase C).
 
-**Pre-requisite:** be logged in to wrangler under an account with
+**Pre-requisites:**
+
+Node.js 20 (Angular 19 requires >= 18.19; the Cloudflare build env pins to Node 20).
+
+Be logged in to wrangler under an account with
 `pages (write)` on the `Leonardo.guedes@akroma.com.br's Account`:
 
     npx wrangler whoami
@@ -48,6 +52,7 @@ once DNS cutover completes (Phase C).
 ## Backend
 
 API: `https://jhwyck4q2p.us-east-1.awsapprunner.com` (AWS App Runner).
+Note: this is a provisional AWS App Runner endpoint — it will be replaced by a stable domain in Phase C (backend CORS + DNS cutover).
 CORS must allow `https://spark.akroma.com.br` — configured in Phase C.
 
 ## Rollback
