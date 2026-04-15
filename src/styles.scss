@@ -1,1 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
+
+@use '@akroma-technology/ui/styles/tokens' as ak;
+
+body {
+  background: ak.$akroma-bg;
+  color: #fff;
+  font-family: ak.$akroma-font-sans;
+}
