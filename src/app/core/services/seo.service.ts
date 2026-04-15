@@ -11,7 +11,7 @@ export interface SeoConfig {
   noindex?: boolean;
 }
 
-const BASE_URL = 'https://akroma.com.br';
+const BASE_URL = 'https://spark.akroma.com.br';
 const DEFAULT_OG_IMAGE = `${BASE_URL}/assets/og-image.png`;
 
 @Injectable({ providedIn: 'root' })
