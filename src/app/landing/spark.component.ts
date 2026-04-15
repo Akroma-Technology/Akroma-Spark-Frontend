@@ -1,9 +1,10 @@
-import { Component, ElementRef, HostListener, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { SeoService } from '../core/services/seo.service';
 
 interface NicheInfo {
   value: string;
@@ -866,11 +867,20 @@ const NICHES: NicheInfo[] = [
     }
   `]
 })
-export class SparkComponent {
+export class SparkComponent implements OnInit {
   private http = inject(HttpClient);
   private host = inject(ElementRef);
+  private seo = inject(SeoService);
 
   readonly niches = NICHES;
+
+  ngOnInit(): void {
+    this.seo.setPage({
+      title: 'Akroma Spark — Geração de conteúdo com IA para Instagram',
+      description:
+        'Akroma Spark cria legendas, ideias e roteiros para seu Instagram em segundos. IA treinada para o seu nicho, em português.',
+    });
+  }
 
   annual = false;
   demoNiche = 'fitness';
