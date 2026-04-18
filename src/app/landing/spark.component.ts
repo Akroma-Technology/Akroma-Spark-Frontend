@@ -1,10 +1,12 @@
-import { Component, ElementRef, HostListener, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { SeoService } from '../core/services/seo.service';
+import { SparkTopbarComponent } from '../shared/components/topbar/topbar.component';
+import { SparkFooterComponent } from '../shared/components/footer/footer.component';
 
 interface NicheInfo {
   value: string;
@@ -154,13 +156,27 @@ const NICHES: NicheInfo[] = [
   }
 ];
 
+interface Plan {
+  id: 'starter' | 'pro' | 'enterprise';
+  name: string;
+  monthly: number;
+  prefix?: string;
+  featured: boolean;
+  features: string[];
+  ctaLabel: string;
+  ctaRoute: string;
+}
+
 @Component({
   selector: 'app-spark',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, SparkTopbarComponent, SparkFooterComponent],
   template: `
+    <app-spark-topbar></app-spark-topbar>
+
     <!-- HERO -->
     <section class="spark-hero">
+      <canvas #heroCanvas class="spark-hero__canvas" aria-hidden="true"></canvas>
       <div class="spark-hero__glow" aria-hidden="true"></div>
       <div class="container spark-hero__inner">
         <span class="label spark-hero__label">AKROMA SPARK</span>
@@ -398,7 +414,7 @@ const NICHES: NicheInfo[] = [
     </section>
 
     <!-- PRICING -->
-    <section class="spark-pricing">
+    <section id="planos" class="spark-pricing">
       <div class="container">
         <span class="label">PLANOS</span>
         <h2 class="section-title">Simples e transparente</h2>
@@ -406,66 +422,38 @@ const NICHES: NicheInfo[] = [
         <!-- Billing toggle -->
         <div class="billing-toggle">
           <span [class.active]="!annual">Mensal</span>
-          <button class="billing-toggle__switch" [class.annual]="annual" (click)="annual = !annual">
+          <button class="billing-toggle__switch" [class.annual]="annual" (click)="annual = !annual" aria-label="Alternar cobranca anual">
             <span class="billing-toggle__knob"></span>
           </button>
-          <span [class.active]="annual">Anual <span class="billing-toggle__save">-2 meses</span></span>
+          <span [class.active]="annual">Anual <span class="billing-toggle__save">2 meses gratis</span></span>
         </div>
 
         <div class="pricing-grid">
-          <div class="pricing-card">
-            <span class="pricing-card__name">Starter</span>
-            <div class="pricing-card__price">
-              <span class="pricing-card__currency">R$</span>
-              <span class="pricing-card__amount">{{ annual ? '247' : '297' }}</span>
-              <span class="pricing-card__period">/mes</span>
+          <div class="pricing-card" *ngFor="let p of plans"
+               [class.pricing-card--featured]="p.featured">
+            <span class="pricing-card__badge" *ngIf="p.featured">POPULAR</span>
+            <div class="pricing-card__head">
+              <span class="pricing-card__name">{{ p.name }}</span>
+              <div class="pricing-card__price">
+                <span class="pricing-card__currency">R$</span>
+                <span class="pricing-card__amount">{{ annual ? annualPerMonth(p.monthly) : p.monthly }}</span>
+                <span class="pricing-card__period">/mes</span>
+              </div>
+              <div class="pricing-card__annual-note" *ngIf="annual">
+                R$ {{ p.monthly * 10 | number:'1.0-0':'pt-BR' }}/ano (pague 10, leve 12)
+              </div>
+              <div class="pricing-card__prefix" *ngIf="p.prefix">{{ p.prefix }}</div>
             </div>
-            <div class="pricing-card__annual-note" *ngIf="annual">R$ 2.964/ano (economia de R$ 600)</div>
             <ul class="pricing-card__features">
-              <li>1 perfil (Instagram)</li>
-              <li>1 post por dia</li>
-              <li>Imagens com IA</li>
-              <li>Analytics basico</li>
-              <li>Templates de nicho</li>
+              <li *ngFor="let f of p.features">{{ f }}</li>
             </ul>
-            <a routerLink="/cadastro" [queryParams]="{ plan: 'starter', billing: annual ? 'annual' : 'monthly' }" class="btn btn--outline btn--full">Teste gratis 7 dias</a>
-          </div>
-          <div class="pricing-card pricing-card--featured">
-            <span class="pricing-card__badge">POPULAR</span>
-            <span class="pricing-card__name">Pro</span>
-            <div class="pricing-card__price">
-              <span class="pricing-card__currency">R$</span>
-              <span class="pricing-card__amount">{{ annual ? '497' : '597' }}</span>
-              <span class="pricing-card__period">/mes</span>
-            </div>
-            <div class="pricing-card__annual-note" *ngIf="annual">R$ 5.964/ano (economia de R$ 1.200)</div>
-            <ul class="pricing-card__features">
-              <li>3 redes (IG + FB + LinkedIn)</li>
-              <li>2 posts por dia</li>
-              <li>Carrosseis com IA</li>
-              <li>Analytics completo + Score</li>
-              <li>A/B Testing de conteudo</li>
-              <li>Renovacao de tokens</li>
-            </ul>
-            <a routerLink="/cadastro" [queryParams]="{ plan: 'pro', billing: annual ? 'annual' : 'monthly' }" class="btn btn--spark btn--full">Teste gratis 7 dias</a>
-          </div>
-          <div class="pricing-card">
-            <span class="pricing-card__name">Enterprise</span>
-            <div class="pricing-card__price">
-              <span class="pricing-card__currency">R$</span>
-              <span class="pricing-card__amount">{{ annual ? '830' : '997' }}</span>
-              <span class="pricing-card__period">/mes</span>
-            </div>
-            <div class="pricing-card__annual-note" *ngIf="annual">R$ 9.960/ano (economia de R$ 2.004)</div>
-            <ul class="pricing-card__features">
-              <li>Tudo do Pro</li>
-              <li>Posts ilimitados</li>
-              <li>Relatorio semanal + mensal</li>
-              <li>Suporte prioritario</li>
-              <li>Portal do cliente</li>
-              <li>Gerente dedicado</li>
-            </ul>
-            <a routerLink="/contato" class="btn btn--outline btn--full">Falar com a equipe</a>
+            <a [routerLink]="p.ctaRoute"
+               [queryParams]="p.ctaRoute === '/cadastro' ? { plan: p.id, billing: annual ? 'annual' : 'monthly' } : null"
+               class="btn btn--full pricing-card__cta"
+               [class.btn--spark]="p.featured"
+               [class.btn--outline]="!p.featured">
+              {{ p.ctaLabel }}
+            </a>
           </div>
         </div>
       </div>
@@ -475,10 +463,10 @@ const NICHES: NicheInfo[] = [
     <section class="spark-referral">
       <div class="container spark-referral__inner">
         <span class="label">PROGRAMA DE INDICACAO</span>
-        <h2 class="section-title">Indique e ganhe 1 mes gratis</h2>
+        <h2 class="section-title">Indique 4 amigos, ganhe 1 mes gratis</h2>
         <p class="spark-referral__desc">
-          Cada amigo que assinar o Spark usando seu codigo, voce ganha 1 mes de credito.
-          Sem limite de indicacoes.
+          A cada 4 amigos que assinarem o Spark usando seu codigo, voce ganha 1 mes inteiro de credito.
+          Sem limite de indicacoes — 8 amigos, 2 meses; 12 amigos, 3 meses; e por ai vai.
         </p>
         <div class="spark-referral__how">
           <div class="spark-referral__step">
@@ -491,7 +479,7 @@ const NICHES: NicheInfo[] = [
           </div>
           <div class="spark-referral__step">
             <span class="spark-referral__step-num">3</span>
-            <span>Ganhe 1 mes gratis por indicacao</span>
+            <span>A cada 4 indicados, 1 mes gratis na sua conta</span>
           </div>
         </div>
       </div>
@@ -505,6 +493,8 @@ const NICHES: NicheInfo[] = [
         <a routerLink="/cadastro" class="btn btn--spark btn--lg">Comecar agora &rarr;</a>
       </div>
     </section>
+
+    <app-spark-footer></app-spark-footer>
   `,
   styles: [`
     :host { display: block; }
@@ -521,21 +511,29 @@ const NICHES: NicheInfo[] = [
 
     /* Hero */
     .spark-hero {
-      position: relative; padding: 160px 0 100px; overflow: hidden;
-      // Bridge: blue → dark → warm. Never pure orange on the frame.
+      position: relative; padding: 200px 0 100px; overflow: hidden;
+      min-height: 100vh;
       background: linear-gradient(180deg, #080c1a 0%, #0a0a12 50%, #0a0a12 100%);
+      display: flex; align-items: center;
+    }
+    .spark-hero__canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
     }
     .spark-hero__glow {
       position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
       width: 800px; height: 800px; border-radius: 50%;
       background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
       pointer-events: none;
+      z-index: 0;
     }
     .spark-hero__glow::after {
       content: ''; position: absolute; inset: 0;
       background: radial-gradient(circle, rgba(77,124,255,0.04) 0%, transparent 60%);
     }
-    .spark-hero__inner { position: relative; text-align: center; max-width: 720px; margin: 0 auto; }
+    .spark-hero__inner { position: relative; text-align: center; max-width: 720px; margin: 0 auto; z-index: 1; }
     .spark-hero__label { margin-bottom: 20px; }
     .spark-hero__title {
       font-size: clamp(36px, 5vw, 64px); font-weight: 900; color: #fff;
@@ -784,17 +782,23 @@ const NICHES: NicheInfo[] = [
       padding: 2px 8px; border-radius: 4px; font-weight: 700;
     }
     .pricing-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: start;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; align-items: stretch;
     }
     .pricing-card {
       padding: 36px 28px; border-radius: 20px;
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
       position: relative;
+      display: flex; flex-direction: column;
+    }
+    .pricing-card__head { margin-bottom: 20px; }
+    .pricing-card__prefix {
+      font-size: 12px; color: #9ca3af; margin-top: 4px;
     }
     .pricing-card--featured {
       background: rgba(251,191,36,0.06); border-color: rgba(251,191,36,0.25);
       transform: scale(1.04);
     }
+    .pricing-card__cta { margin-top: auto; }
     .pricing-card__badge {
       position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
       background: linear-gradient(135deg, #f59e0b, #d97706);
@@ -810,6 +814,7 @@ const NICHES: NicheInfo[] = [
     .pricing-card__features {
       list-style: none; padding: 0; margin: 0 0 28px;
       display: flex; flex-direction: column; gap: 12px;
+      flex-grow: 1;
     }
     .pricing-card__features li {
       font-size: 14px; color: #d1d5db; padding-left: 20px; position: relative;
@@ -867,12 +872,81 @@ const NICHES: NicheInfo[] = [
     }
   `]
 })
-export class SparkComponent implements OnInit {
+export class SparkComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('heroCanvas') heroCanvas?: ElementRef<HTMLCanvasElement>;
+  private heroScene: { dispose: () => void } | null = null;
+
   private http = inject(HttpClient);
   private host = inject(ElementRef);
   private seo = inject(SeoService);
 
   readonly niches = NICHES;
+
+  readonly plans: Plan[] = [
+    {
+      id: 'starter', name: 'Starter', monthly: 297, featured: false,
+      features: [
+        '1 perfil (Instagram)',
+        '1 post por dia',
+        'Imagens com IA',
+        'Analytics basico',
+        'Templates de nicho',
+      ],
+      ctaLabel: 'Teste gratis 7 dias', ctaRoute: '/cadastro',
+    },
+    {
+      id: 'pro', name: 'Pro', monthly: 497, featured: true,
+      features: [
+        '3 redes (IG + FB + LinkedIn)',
+        '2 posts por dia',
+        'Carrosseis com IA',
+        'Analytics completo + Score',
+        'A/B Testing de conteudo',
+        'Renovacao de tokens',
+      ],
+      ctaLabel: 'Teste gratis 7 dias', ctaRoute: '/cadastro',
+    },
+    {
+      id: 'enterprise', name: 'Enterprise', monthly: 997, featured: false,
+      prefix: 'A partir de',
+      features: [
+        'Tudo do Pro',
+        'Posts ilimitados',
+        'Relatorio semanal + mensal',
+        'Suporte prioritario',
+        'Portal do cliente',
+        'Gerente dedicado',
+      ],
+      ctaLabel: 'Falar com time de vendas', ctaRoute: '/contato',
+    },
+  ];
+
+  /** Annual = 10x monthly, spread across 12 months. Effective per-month. */
+  annualPerMonth(monthly: number): number {
+    return Math.round((monthly * 10) / 12);
+  }
+
+  constructor(@Inject(PLATFORM_ID) private platformId: object) {}
+
+  async ngAfterViewInit(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (!this.heroCanvas?.nativeElement) return;
+    try {
+      const { SparkHeroScene } = await import('../three/spark-hero-scene');
+      if (this.heroScene === null) {
+        this.heroScene = new SparkHeroScene(this.heroCanvas.nativeElement);
+      }
+    } catch (err) {
+      console.error('[SparkComponent] hero scene error', err);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.heroScene) {
+      this.heroScene.dispose();
+      this.heroScene = null;
+    }
+  }
 
   ngOnInit(): void {
     this.seo.setPage({
