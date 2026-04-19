@@ -5,19 +5,19 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ClientAuthService } from '../core/services/client-auth.service';
 import { SeoService } from '../core/services/seo.service';
+import { SparkTopbarComponent } from '../shared/components/topbar/topbar.component';
 
 @Component({
   selector: 'app-cadastro',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, SparkTopbarComponent],
   template: `
+    <app-spark-topbar></app-spark-topbar>
+
     <section class="signup-section">
       <div class="signup-container">
         <div class="signup-header">
-          <a routerLink="/" class="signup-logo">
-            <img src="assets/images/logo-akroma-horizontal.png" alt="Akroma" />
-          </a>
-          <span class="signup-badge">TRIAL PRO — 7 DIAS GRATIS</span>
+          <span class="signup-badge">TRIAL STARTER — 7 DIAS GRATIS</span>
           <h1 class="signup-title">Crie sua conta e ative o Spark</h1>
           <p class="signup-subtitle">
             Sem cartao de credito. Cancele quando quiser. Primeiro post publicado em minutos.
@@ -62,8 +62,8 @@ import { SeoService } from '../core/services/seo.service';
 
           <p class="signup-tos">
             Ao continuar, voce aceita os
-            <a routerLink="/termos-de-uso">Termos de Uso</a> e a
-            <a routerLink="/politica-privacidade">Politica de Privacidade</a>.
+            <a href="https://akroma.com.br/termos-de-uso" target="_blank" rel="noopener">Termos de Uso</a> e a
+            <a href="https://akroma.com.br/politica-privacidade" target="_blank" rel="noopener">Politica de Privacidade</a>.
           </p>
 
           <div class="signup-alt">
@@ -75,7 +75,7 @@ import { SeoService } from '../core/services/seo.service';
           <div class="signup-perk">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             <div>
-              <strong>7 dias gratis no plano Pro</strong>
+              <strong>7 dias gratis no plano Starter</strong>
               <span>Acesso completo a recursos premium. Sem cobrancas automaticas.</span>
             </div>
           </div>
@@ -99,7 +99,7 @@ import { SeoService } from '../core/services/seo.service';
   `,
   styles: [`
     :host { display: block; background: #050912; min-height: 100vh; }
-    .signup-section { padding: 48px 16px 80px; display: flex; justify-content: center; }
+    .signup-section { padding: 88px 16px 40px; display: flex; justify-content: center; }
     .signup-container {
       max-width: 960px; width: 100%; display: grid;
       grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: start;
@@ -107,8 +107,6 @@ import { SeoService } from '../core/services/seo.service';
     @media (max-width: 860px) { .signup-container { grid-template-columns: 1fr; } }
 
     .signup-header { grid-column: 1 / -1; text-align: center; margin-bottom: 16px; }
-    .signup-logo { display: inline-block; margin-bottom: 24px; }
-    .signup-logo img { height: 32px; }
     .signup-badge {
       display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 2px;
       color: #fbbf24; padding: 4px 12px; border-radius: 20px;

@@ -36,6 +36,7 @@ import { RouterModule } from '@angular/router';
           <div class="footer__col">
             <h4 class="footer__heading">Produto</h4>
             <a href="/#como-funciona" class="footer__link">Como funciona</a>
+            <a href="/#solucoes" class="footer__link">Soluções</a>
             <a href="/#demo" class="footer__link">Demonstração</a>
             <a href="/#planos" class="footer__link">Planos</a>
             <a routerLink="/cadastro" class="footer__link">Teste grátis 7 dias</a>
@@ -44,8 +45,7 @@ import { RouterModule } from '@angular/router';
             <h4 class="footer__heading">Empresa</h4>
             <a href="https://akroma.com.br/sobre" class="footer__link">Sobre a Akroma</a>
             <a href="https://akroma.com.br/servicos" class="footer__link">Outros serviços</a>
-            <a href="https://chefmanager.com.br" class="footer__link" rel="noopener">Akroma Food</a>
-            <a href="https://akroma.com.br/contato" class="footer__link">Fale Conosco</a>
+            <a routerLink="/contato" class="footer__link">Fale Conosco</a>
           </div>
           <div class="footer__col">
             <h4 class="footer__heading">Contato</h4>

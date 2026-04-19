@@ -32,9 +32,21 @@ export const routes: Routes = [
     path: 'portal/:token',
     loadComponent: () => import('./portal/client-portal.component').then(m => m.ClientPortalComponent)
   },
-  // Niche pages LAST — otherwise /cadastro, /entrar, etc. would match :niche.
+  {
+    path: 'contato',
+    loadComponent: () => import('./contato/contato.component').then(m => m.ContatoComponent)
+  },
+  {
+    path: '404',
+    loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent)
+  },
+  // Niche pages (single segment) — must come before wildcard. Unknown slugs redirect to /404.
   {
     path: ':niche',
     loadComponent: () => import('./landing/spark-niche.component').then(m => m.SparkNicheComponent)
+  },
+  {
+    path: '**',
+    loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent)
   }
 ];

@@ -1,0 +1,84 @@
+[seed] 
+=== fitness (gympower.oficial) ===
+[seed]   -> Gemini text (content planner)
+[seed]   topic: O fim do treino até a falha em 2026
+[seed]   -> Gemini text (visual plan)
+[seed]   style: infographic  headline: Treinar até a falha é erro amador.
+[seed]   -> Gemini text (image creative)
+[seed]   -> Gemini image (nano banana, 3:4)
+[seed]   saved image -> C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\public\assets\demo\fitness.png (564772 bytes)
+[seed] 
+=== tecnologia (devpro.br) ===
+[seed]   -> Gemini text (content planner)
+[seed]   topic: A morte do Senior tradicional e a ascensão do Orquestrador
+[seed]   -> Gemini text (visual plan)
+[seed]   style: infographic  headline: O Sênior morreu. O Orquestrador assumiu o comando.
+[seed]   -> Gemini text (image creative)
+[seed]   -> Gemini image (nano banana, 3:4)
+[seed]   saved image -> C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\public\assets\demo\tecnologia.png (599760 bytes)
+[seed] 
+=== gastronomia (chefana.cozinha) ===
+[seed]   -> Gemini text (content planner)
+[seed]   topic: O fim da tradição: a física por trás da Carbonara perfeita.
+[seed]   -> Gemini text (visual plan)
+[seed]   style: editorial-clean  headline: A Carbonara perfeita não é tradição. É física.
+[seed]   -> Gemini text (image creative)
+[seed]   -> Gemini image (nano banana, 3:4)
+[seed]   saved image -> C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\public\assets\demo\gastronomia.png (555804 bytes)
+[seed] 
+=== moda (lolastyle.br) ===
+[seed]   -> Gemini text (content planner)
+[seed]   topic: O fim do fast fashion e a fraude do guarda-roupa lotado
+[seed]   -> Gemini text (visual plan)
+[seed]   style: list-tips  headline: Armário cheio é sintoma de um estilo vazio.
+[seed]   -> Gemini text (image creative)
+[seed]   -> Gemini image (nano banana, 3:4)
+[seed]   saved image -> C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\public\assets\demo\moda.png (534698 bytes)
+[seed] 
+=== juridico (dra.patricia.costa) ===
+[seed]   -> Gemini text (content planner)
+[seed]   topic: O fim do preço abusivo por algoritmo e IAs
+[seed]   -> Gemini text (visual plan)
+[seed]   style: comparison  headline: Preço Justo vs. Discriminação por Algoritmo
+[seed]   -> Gemini text (image creative)
+[seed]   -> Gemini image (nano banana, 3:4)
+[seed]   saved image -> C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\public\assets\demo\juridico.png (587093 bytes)
+[seed] 
+=== imobiliario (rafael.imoveis) ===
+[seed]   -> Gemini text (content planner)
+[seed]   topic: Por que comprar imóvel em 2026 virou erro estratégico
+[seed]   -> Gemini text (visual plan)
+[seed]   style: comparison  headline: 2026: Comprar imóvel virou queima de capital
+[seed]   -> Gemini text (image creative)
+[seed]   -> Gemini image (nano banana, 3:4)
+[seed]   saved image -> C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\public\assets\demo\imobiliario.png (769213 bytes)
+[seed] 
+=== educacao (profmarcos.estudos) ===
+[seed]   -> Gemini text (content planner)
+[seed]   topic: A farsa do esforço: por que estudar 10h te reprova
+[seed]   -> Gemini text (visual plan)
+[seed]   style: editorial-dark  headline: ESTUDAR 10 HORAS VAI TE REPROVAR
+[seed]   -> Gemini text (image creative)
+[seed]   -> Gemini image (nano banana, 3:4)
+[seed]   saved image -> C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\public\assets\demo\educacao.png (595566 bytes)
+[seed] 
+=== saude (dra.juliana.nutrologa) ===
+[seed]   -> Gemini text (content planner)
+[seed]   topic: A farsa do exame de sangue 'normal' em 2026
+[seed]   -> Gemini text (visual plan)
+[seed]   style: tech-mockup  headline: Seu exame 'normal' é um erro sistêmico.
+[seed]   -> Gemini text (image creative)
+[seed]   -> Gemini image (nano banana, 3:4)
+[seed]   saved image -> C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\public\assets\demo\saude.png (654896 bytes)
+[seed] 
+wrote TS data -> C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\src\app\landing\demo-posts.data.ts
+[seed] 
+DONE.
+[seed]   8 niches generated
+[seed]   images:    C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\public\assets\demo
+[seed]   data file: C:\Users\Leo Guedes\Documents\Instagram\dev\akroma-spark\src\app\landing\demo-posts.data.ts
+[seed] 
+Next steps:
+[seed]   1. git add public/assets/demo src/app/landing/demo-posts.data.ts
+[seed]   2. commit, deploy
+[seed]   3. (optional) delete scripts/seed-demo/ — it was one-shot

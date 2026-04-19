@@ -234,6 +234,8 @@ export class SparkTopbarComponent implements AfterViewInit, OnDestroy {
 
   readonly links: NavLink[] = [
     { id: 'como-funciona', label: 'Como funciona', href: '/#como-funciona' },
+    { id: 'solucoes',      label: 'Soluções',      href: '/#solucoes' },
+    { id: 'demo',          label: 'Demonstração',  href: '/#demo' },
     { id: 'planos',        label: 'Planos',        href: '/#planos' },
   ];
 

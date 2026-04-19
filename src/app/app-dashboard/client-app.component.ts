@@ -7,9 +7,27 @@ import { SeoService } from '../core/services/seo.service';
 import { environment } from '../../environments/environment';
 
 interface ReferralStats {
-  code: string;
-  totalReferred: number;
+  referralCode: string;
+  totalPaidReferrals: number;
   creditMonths: number;
+  referralsToNextMonth: number;
+}
+
+interface BillingStatus {
+  planTier: string;
+  planValue: number;
+  billingCycle: string;
+  active: boolean;
+  canceled: boolean;
+  trialActive: boolean;
+  trialEndsAt?: string;
+  canceledAt?: string;
+  periodEnd?: string;
+}
+
+interface PlanPrices {
+  starter: { monthly: string; annual: string; annualMonthly: string };
+  pro:     { monthly: string; annual: string; annualMonthly: string };
 }
 
 type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
@@ -22,7 +40,8 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
     <section class="app-shell" *ngIf="client">
       <aside class="app-sidebar">
         <a routerLink="/" class="app-logo">
-          <img src="assets/images/logo-akroma-horizontal.png" alt="Akroma" />
+          <img src="assets/icone-akroma.png" alt="" class="app-logo__icon" aria-hidden="true">
+          <span class="app-logo__name">Akroma <span class="app-logo__accent">Spark</span></span>
         </a>
 
         <nav class="app-nav">
@@ -38,7 +57,7 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Indicacoes</span>
           </button>
-          <button type="button" class="app-nav__item" [class.app-nav__item--active]="tab === 'plan'" (click)="tab = 'plan'">
+          <button type="button" class="app-nav__item" [class.app-nav__item--active]="tab === 'plan'" (click)="tab = 'plan'; loadPlanData()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
             <span>Plano</span>
           </button>
@@ -60,7 +79,7 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
           </div>
           <div>
             <strong>Bem-vindo ao Akroma Spark, {{ client.name.split(' ')[0] }}!</strong>
-            <span>Seu trial PRO de 7 dias esta ativo. Conecte seu Instagram para comecar.</span>
+            <span>Seu trial Starter de 7 dias esta ativo. Conecte seu Instagram para comecar.</span>
           </div>
           <button type="button" class="app-welcome__close" (click)="showWelcome = false" aria-label="Fechar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -86,9 +105,9 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
               <span class="app-stat__hint">{{ trialActive ? 'Em teste gratis' : 'Ativo' }}</span>
             </div>
             <div class="app-stat">
-              <span class="app-stat__label">Codigo</span>
-              <span class="app-stat__value app-stat__value--mono">{{ client.referralCode || '—' }}</span>
-              <span class="app-stat__hint">Seu codigo de indicacao</span>
+              <span class="app-stat__label">Indicados</span>
+              <span class="app-stat__value">{{ referralStats?.totalPaidReferrals ?? '—' }}</span>
+              <span class="app-stat__hint">{{ (referralStats?.creditMonths ?? 0) > 0 ? (referralStats!.creditMonths + ' mes gratis') : 'Amigos que pagaram' }}</span>
             </div>
           </div>
 
@@ -106,11 +125,16 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
               <button type="button" class="btn btn--outline" disabled>Em breve</button>
             </div>
             <div class="app-action">
-              <h3>Indique e ganhe</h3>
-              <p>Cada amigo que assinar usando seu codigo te da 1 mes gratis. Sem limite.</p>
-              <button type="button" class="btn btn--outline" (click)="tab = 'referrals'; loadReferralStats()">
-                Ver meu codigo
-              </button>
+              <h3>Indique e ganhe 1 mes gratis</h3>
+              <p>A cada 4 amigos que assinarem um plano pago com seu link, voce ganha 1 mes gratis.</p>
+              <div class="app-referral-inline">
+                <code class="app-referral-inline__link">spark.akroma.com.br/cadastro?ref={{ client.referralCode }}</code>
+                <button type="button" class="app-copy-btn" (click)="copyReferralLink()">
+                  <svg *ngIf="!copiedLink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <svg *ngIf="copiedLink" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>{{ copiedLink ? 'Copiado!' : 'Copiar' }}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -133,13 +157,13 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
         <div *ngIf="tab === 'referrals'">
           <header class="app-page-header">
             <h1>Programa de indicacao</h1>
-            <p>Cada amigo que assinar o Spark com seu codigo, voce ganha 1 mes gratis.</p>
+            <p>A cada 4 amigos que assinarem um plano pago com seu codigo, voce ganha 1 mes gratis.</p>
           </header>
 
           <div class="app-referral-card">
             <span class="app-referral-card__label">SEU CODIGO</span>
             <div class="app-referral-card__code">
-              <strong>{{ referralStats?.code || client.referralCode || '—' }}</strong>
+              <strong>{{ referralStats?.referralCode || client.referralCode || '—' }}</strong>
               <button type="button" class="app-copy-btn" (click)="copyCode()">
                 <svg *ngIf="!copied" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 <svg *ngIf="copied" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -147,20 +171,25 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
               </button>
             </div>
             <div class="app-referral-card__share">
-              <span>Compartilhe: <code>spark.akroma.com.br/cadastro?ref={{ referralStats?.code || client.referralCode }}</code></span>
+              <span>Compartilhe: <code>spark.akroma.com.br/cadastro?ref={{ referralStats?.referralCode || client.referralCode }}</code></span>
             </div>
           </div>
 
           <div class="app-stats">
             <div class="app-stat">
-              <span class="app-stat__label">Indicados</span>
-              <span class="app-stat__value">{{ referralStats?.totalReferred ?? 0 }}</span>
-              <span class="app-stat__hint">Amigos que assinaram</span>
+              <span class="app-stat__label">Amigos pagando</span>
+              <span class="app-stat__value">{{ referralStats?.totalPaidReferrals ?? 0 }}</span>
+              <span class="app-stat__hint">Indicados com plano ativo</span>
             </div>
             <div class="app-stat">
-              <span class="app-stat__label">Credito</span>
+              <span class="app-stat__label">Meses gratis</span>
               <span class="app-stat__value">{{ referralStats?.creditMonths ?? 0 }}</span>
-              <span class="app-stat__hint">{{ (referralStats?.creditMonths ?? 0) === 1 ? 'mes gratis' : 'meses gratis' }}</span>
+              <span class="app-stat__hint">{{ (referralStats?.creditMonths ?? 0) === 1 ? 'mes gratis conquistado' : 'meses gratis conquistados' }}</span>
+            </div>
+            <div class="app-stat" *ngIf="(referralStats?.referralsToNextMonth ?? 0) > 0">
+              <span class="app-stat__label">Proximo mes gratis</span>
+              <span class="app-stat__value">{{ referralStats?.referralsToNextMonth ?? 4 }}</span>
+              <span class="app-stat__hint">Indicados que faltam</span>
             </div>
           </div>
         </div>
@@ -169,25 +198,147 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
         <div *ngIf="tab === 'plan'">
           <header class="app-page-header">
             <h1>Seu plano</h1>
-            <p>Gerencie seu plano e cobrancas.</p>
+            <p>Gerencie sua assinatura e cobrancas.</p>
           </header>
 
-          <div class="app-plan-card">
+          <!-- Current plan status -->
+          <div class="app-plan-card" [class.app-plan-card--canceled]="billingStatus?.canceled">
             <div class="app-plan-card__header">
               <div>
                 <span class="app-plan-card__tag">PLANO ATUAL</span>
-                <strong>{{ client.planTier }}</strong>
-                <span class="app-plan-card__status" *ngIf="trialActive">Trial gratis — {{ trialDaysLeft }} dias restantes</span>
+                <strong>{{ billingStatus?.planTier || client.planTier }}</strong>
+                <span class="app-plan-card__status" *ngIf="billingStatus?.trialActive">
+                  Trial gratis — {{ trialDaysLeft }} dias restantes
+                </span>
+                <span class="app-plan-card__status app-plan-card__status--paid"
+                      *ngIf="!billingStatus?.trialActive && billingStatus?.active && !billingStatus?.canceled">
+                  Ativo {{ billingStatus?.billingCycle === 'ANNUAL' ? '(anual)' : '(mensal)' }}
+                </span>
+                <span class="app-plan-card__status app-plan-card__status--canceled"
+                      *ngIf="billingStatus?.canceled">
+                  Cancelado — acesso ate {{ billingStatus?.periodEnd | date:'dd/MM/yyyy' }}
+                </span>
               </div>
             </div>
-            <p class="app-plan-card__desc">
-              Apos o trial, o plano {{ client.planTier }} custa a partir de R$ 497/mes (anual).
-              Voce pode mudar de plano ou cancelar a qualquer momento.
+            <p class="app-plan-card__desc" *ngIf="!billingStatus?.canceled">
+              {{ billingStatus?.trialActive
+                ? 'Ative um plano antes do trial encerrar para continuar publicando automaticamente.'
+                : 'Voce pode mudar de plano ou cancelar a qualquer momento. Cancelamentos nao geram reembolso do periodo ja pago.' }}
             </p>
-            <div class="app-plan-card__ctas">
-              <a routerLink="/spark" fragment="pricing" class="btn btn--outline">Ver planos</a>
-              <a routerLink="/contato" class="btn btn--spark">Falar com a equipe</a>
+            <p class="app-plan-card__desc" *ngIf="billingStatus?.canceled">
+              Sua assinatura foi cancelada. Voce mantem acesso ate <strong>{{ billingStatus?.periodEnd | date:'dd/MM/yyyy' }}</strong>.
+              Para reativar, escolha um plano abaixo.
+            </p>
+          </div>
+
+          <!-- Plan selector: only show if on trial or free or canceled -->
+          <div class="app-plan-upgrade" *ngIf="billingStatus?.trialActive || !billingStatus?.active || billingStatus?.canceled">
+            <h2 class="app-plan-upgrade__title">Escolha seu plano</h2>
+
+            <!-- Cycle toggle -->
+            <div class="app-cycle-toggle">
+              <button type="button" class="app-cycle-btn" [class.app-cycle-btn--active]="selectedCycle === 'MONTHLY'"
+                      (click)="selectedCycle = 'MONTHLY'">Mensal</button>
+              <button type="button" class="app-cycle-btn" [class.app-cycle-btn--active]="selectedCycle === 'ANNUAL'"
+                      (click)="selectedCycle = 'ANNUAL'">
+                Anual <span class="app-cycle-discount">2 meses gratis</span>
+              </button>
             </div>
+
+            <!-- Plan cards -->
+            <div class="app-plan-options" *ngIf="planPrices">
+              <!-- Starter -->
+              <div class="app-plan-option" [class.app-plan-option--selected]="selectedPlanTier === 'STARTER'"
+                   (click)="selectedPlanTier = 'STARTER'">
+                <div class="app-plan-option__header">
+                  <span class="app-plan-option__name">Starter</span>
+                  <div class="app-plan-option__price">
+                    <span class="app-plan-option__price-main">
+                      R$ {{ selectedCycle === 'ANNUAL' ? planPrices.starter.annualMonthly : planPrices.starter.monthly }}
+                    </span>
+                    <span class="app-plan-option__price-label">/mes</span>
+                  </div>
+                  <div class="app-plan-option__annual-note" *ngIf="selectedCycle === 'ANNUAL'">
+                    R$ {{ planPrices.starter.annual }} cobrado anualmente
+                  </div>
+                </div>
+                <ul class="app-plan-option__features">
+                  <li>Posts automaticos diarios</li>
+                  <li>Geração de imagem por IA</li>
+                  <li>1 perfil Instagram</li>
+                  <li>Relatorios basicos</li>
+                </ul>
+              </div>
+
+              <!-- Pro -->
+              <div class="app-plan-option app-plan-option--pro" [class.app-plan-option--selected]="selectedPlanTier === 'PRO'"
+                   (click)="selectedPlanTier = 'PRO'">
+                <div class="app-plan-option__badge">RECOMENDADO</div>
+                <div class="app-plan-option__header">
+                  <span class="app-plan-option__name">Pro</span>
+                  <div class="app-plan-option__price">
+                    <span class="app-plan-option__price-main">
+                      R$ {{ selectedCycle === 'ANNUAL' ? planPrices.pro.annualMonthly : planPrices.pro.monthly }}
+                    </span>
+                    <span class="app-plan-option__price-label">/mes</span>
+                  </div>
+                  <div class="app-plan-option__annual-note" *ngIf="selectedCycle === 'ANNUAL'">
+                    R$ {{ planPrices.pro.annual }} cobrado anualmente
+                  </div>
+                </div>
+                <ul class="app-plan-option__features">
+                  <li>Tudo do Starter</li>
+                  <li>Carrossis e stories</li>
+                  <li>Multiplos perfis</li>
+                  <li>Relatorios avancados</li>
+                  <li>Suporte prioritario</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Loading prices -->
+            <div class="app-plan-loading" *ngIf="!planPrices && planLoading">Carregando precos...</div>
+
+            <!-- Checkout button -->
+            <button type="button" class="btn btn--spark app-plan-cta"
+                    [disabled]="checkoutLoading || !planPrices"
+                    (click)="startCheckout()">
+              <span *ngIf="!checkoutLoading">
+                Assinar {{ selectedPlanTier | titlecase }} {{ selectedCycle === 'ANNUAL' ? 'Anual' : 'Mensal' }} &rarr;
+              </span>
+              <span *ngIf="checkoutLoading">Redirecionando para pagamento...</span>
+            </button>
+            <p class="app-plan-note">
+              Voce sera redirecionado para o checkout seguro. Aceitamos PIX, cartao de credito e debito.
+            </p>
+            <div class="app-plan-error" *ngIf="checkoutError">{{ checkoutError }}</div>
+          </div>
+
+          <!-- Cancel subscription (only for paying, non-canceled clients) -->
+          <div class="app-cancel-section"
+               *ngIf="!billingStatus?.trialActive && billingStatus?.active && !billingStatus?.canceled && billingStatus?.planValue && billingStatus?.planValue! > 0">
+            <h3>Cancelar assinatura</h3>
+            <p>
+              Ao cancelar, nenhuma nova cobranca sera gerada. Voce mantem acesso ao Spark
+              ate o fim do periodo ja pago (<strong>{{ billingStatus?.periodEnd | date:'dd/MM/yyyy' }}</strong>).
+            </p>
+            <div *ngIf="!cancelConfirm">
+              <button type="button" class="btn app-cancel-btn" (click)="cancelConfirm = true">
+                Cancelar assinatura
+              </button>
+            </div>
+            <div class="app-cancel-confirm" *ngIf="cancelConfirm">
+              <p class="app-cancel-confirm__warning">Tem certeza? Esta acao nao pode ser desfeita.</p>
+              <div class="app-cancel-confirm__btns">
+                <button type="button" class="btn btn--outline" (click)="cancelConfirm = false"
+                        [disabled]="cancelLoading">Nao, manter assinatura</button>
+                <button type="button" class="btn app-cancel-btn--confirm"
+                        [disabled]="cancelLoading" (click)="cancelSubscription()">
+                  {{ cancelLoading ? 'Cancelando...' : 'Sim, cancelar' }}
+                </button>
+              </div>
+            </div>
+            <div class="app-plan-error" *ngIf="cancelError">{{ cancelError }}</div>
           </div>
         </div>
       </main>
@@ -208,8 +359,19 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
       background: #07091a; border-right: 1px solid rgba(255,255,255,0.05);
       padding: 24px 16px; display: flex; flex-direction: column; gap: 24px;
     }
-    .app-logo { display: inline-block; padding: 0 8px; }
-    .app-logo img { height: 26px; }
+    .app-logo {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 8px; text-decoration: none;
+    }
+    .app-logo__icon {
+      height: 28px; width: auto;
+      filter: brightness(0) saturate(100%) invert(76%) sepia(43%) saturate(1100%) hue-rotate(358deg) brightness(101%) contrast(99%);
+    }
+    .app-logo__name { font-size: 15px; font-weight: 700; color: #fff; }
+    .app-logo__accent {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
     .app-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
     .app-nav__item {
       display: flex; align-items: center; gap: 12px;
@@ -295,6 +457,16 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
     .app-action h3 { font-size: 15px; font-weight: 700; color: #fff; margin: 0 0 6px; }
     .app-action p { font-size: 13px; color: #9ca3af; line-height: 1.6; margin: 0 0 16px; }
 
+    .app-referral-inline {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .app-referral-inline__link {
+      flex: 1; font-size: 12px; color: #fbbf24; font-family: monospace;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
     .btn {
       display: inline-flex; align-items: center; justify-content: center;
       padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 14px;
@@ -376,6 +548,118 @@ type Tab = 'overview' | 'posts' | 'referrals' | 'plan';
     }
     .app-plan-card__desc { font-size: 14px; color: #9ca3af; line-height: 1.6; margin: 0 0 20px; }
     .app-plan-card__ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+    .app-plan-card--canceled { border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.04); }
+    .app-plan-card__status--paid { background: rgba(34,197,94,0.1); color: #22c55e; }
+    .app-plan-card__status--canceled { background: rgba(239,68,68,0.1); color: #f87171; }
+
+    /* Plan upgrade section */
+    .app-plan-upgrade { margin-top: 32px; }
+    .app-plan-upgrade__title {
+      font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 20px;
+    }
+
+    /* Cycle toggle */
+    .app-cycle-toggle {
+      display: inline-flex; gap: 4px; padding: 4px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; margin-bottom: 24px;
+    }
+    .app-cycle-btn {
+      padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      background: transparent; color: #9ca3af; border: none; cursor: pointer;
+      transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+    }
+    .app-cycle-btn--active { background: rgba(251,191,36,0.1); color: #fbbf24; }
+    .app-cycle-discount {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 2px 8px; border-radius: 10px;
+      background: rgba(34,197,94,0.12); color: #22c55e;
+    }
+
+    /* Plan option cards */
+    .app-plan-options {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;
+    }
+    @media (max-width: 640px) { .app-plan-options { grid-template-columns: 1fr; } }
+
+    .app-plan-option {
+      position: relative; padding: 24px; border-radius: 16px; cursor: pointer;
+      background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.08);
+      transition: all 0.2s;
+    }
+    .app-plan-option:hover { border-color: rgba(251,191,36,0.3); }
+    .app-plan-option--selected { border-color: #fbbf24; background: rgba(251,191,36,0.05); }
+    .app-plan-option--pro { background: rgba(251,191,36,0.03); }
+    .app-plan-option--pro.app-plan-option--selected { border-color: #fbbf24; background: rgba(251,191,36,0.08); }
+
+    .app-plan-option__badge {
+      position: absolute; top: -1px; right: 20px;
+      font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+      padding: 4px 12px; border-radius: 0 0 10px 10px;
+      background: linear-gradient(135deg, #f59e0b, #d97706); color: #000;
+    }
+
+    .app-plan-option__header { margin-bottom: 16px; }
+    .app-plan-option__name {
+      display: block; font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+      color: #9ca3af; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .app-plan-option__price { display: flex; align-items: baseline; gap: 4px; }
+    .app-plan-option__price-main { font-size: 28px; font-weight: 800; color: #fff; }
+    .app-plan-option__price-label { font-size: 13px; color: #6b7280; }
+    .app-plan-option__annual-note {
+      font-size: 12px; color: #6b7280; margin-top: 4px;
+    }
+
+    .app-plan-option__features {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .app-plan-option__features li {
+      font-size: 13px; color: #d1d5db;
+      padding-left: 18px; position: relative;
+    }
+    .app-plan-option__features li::before {
+      content: '✓'; position: absolute; left: 0;
+      color: #22c55e; font-weight: 700; font-size: 12px;
+    }
+
+    .app-plan-loading { font-size: 14px; color: #6b7280; padding: 16px 0; }
+
+    .app-plan-cta { width: 100%; padding: 14px 24px; font-size: 16px; }
+    .app-plan-note {
+      text-align: center; font-size: 12px; color: #6b7280; margin: 12px 0 0; line-height: 1.5;
+    }
+    .app-plan-error {
+      margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 13px;
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #f87171;
+    }
+
+    /* Cancel section */
+    .app-cancel-section {
+      margin-top: 40px; padding: 24px; border-radius: 14px;
+      background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.15);
+    }
+    .app-cancel-section h3 {
+      font-size: 15px; font-weight: 700; color: #f87171; margin: 0 0 8px;
+    }
+    .app-cancel-section p { font-size: 13px; color: #9ca3af; line-height: 1.6; margin: 0 0 16px; }
+    .app-cancel-btn {
+      background: transparent; border: 1px solid rgba(239,68,68,0.3);
+      color: #f87171; font-size: 13px; padding: 8px 18px; border-radius: 8px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .app-cancel-btn:hover { background: rgba(239,68,68,0.08); }
+    .app-cancel-confirm { background: rgba(239,68,68,0.06); border-radius: 10px; padding: 16px; }
+    .app-cancel-confirm__warning { font-size: 14px; color: #fca5a5; font-weight: 600; margin: 0 0 12px; }
+    .app-cancel-confirm__btns { display: flex; gap: 12px; }
+    .app-cancel-btn--confirm {
+      padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+      background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #f87171;
+      transition: all 0.2s;
+    }
+    .app-cancel-btn--confirm:hover:not(:disabled) { background: rgba(239,68,68,0.3); }
+    .app-cancel-btn--confirm:disabled { opacity: 0.5; cursor: not-allowed; }
   `]
 })
 export class ClientAppComponent implements OnInit {
@@ -389,7 +673,20 @@ export class ClientAppComponent implements OnInit {
   tab: Tab = 'overview';
   showWelcome = false;
   copied = false;
+  copiedLink = false;
   referralStats: ReferralStats | null = null;
+
+  // Plan tab state
+  billingStatus: BillingStatus | null = null;
+  planPrices: PlanPrices | null = null;
+  planLoading = false;
+  selectedPlanTier: 'STARTER' | 'PRO' = 'STARTER';
+  selectedCycle: 'MONTHLY' | 'ANNUAL' = 'MONTHLY';
+  checkoutLoading = false;
+  checkoutError = '';
+  cancelConfirm = false;
+  cancelLoading = false;
+  cancelError = '';
 
   ngOnInit(): void {
     this.seo.setPage({ title: 'Painel — Akroma Spark', description: '', noindex: true });
@@ -416,7 +713,7 @@ export class ClientAppComponent implements OnInit {
   get trialDaysLeft(): number | null {
     if (!this.client?.trialEndsAt) return null;
     const ms = new Date(this.client.trialEndsAt).getTime() - Date.now();
-    return ms > 0 ? Math.ceil(ms / (1000 * 60 * 60 * 24)) : 0;
+    return ms > 0 ? Math.floor(ms / (1000 * 60 * 60 * 24)) : 0;
   }
 
   loadReferralStats(): void {
@@ -425,21 +722,133 @@ export class ClientAppComponent implements OnInit {
     this.http.get<ReferralStats>(`${environment.apiUrl}/api/v1/referral/stats/${this.client.clientId}`).subscribe({
       next: (stats) => this.referralStats = stats,
       error: () => {
-        // Fallback to local info if endpoint fails
         if (this.client?.referralCode) {
-          this.referralStats = { code: this.client.referralCode, totalReferred: 0, creditMonths: 0 };
+          this.referralStats = {
+            referralCode: this.client.referralCode,
+            totalPaidReferrals: 0,
+            creditMonths: 0,
+            referralsToNextMonth: 4
+          };
         }
       }
     });
   }
 
+  loadPlanData(): void {
+    if (this.billingStatus && this.planPrices) return; // cached
+
+    this.planLoading = true;
+    const headers = this.auth.authHeaders();
+
+    // Load billing status
+    this.http.get<BillingStatus>(`${environment.apiUrl}/api/v1/client-billing/status`, { headers }).subscribe({
+      next: (status) => {
+        this.billingStatus = status;
+        // Pre-select current plan tier if on a paid plan
+        if (status.planTier && status.planTier !== 'FREE') {
+          this.selectedPlanTier = status.planTier as 'STARTER' | 'PRO';
+        }
+        if (status.billingCycle) {
+          this.selectedCycle = status.billingCycle as 'MONTHLY' | 'ANNUAL';
+        }
+      },
+      error: () => {
+        // Fallback to client info from JWT
+        if (this.client) {
+          this.billingStatus = {
+            planTier: this.client.planTier,
+            planValue: 0,
+            billingCycle: 'MONTHLY',
+            active: true,
+            canceled: false,
+            trialActive: this.trialActive,
+            trialEndsAt: this.client.trialEndsAt
+          };
+        }
+      }
+    });
+
+    // Load prices (public endpoint, no auth)
+    this.http.get<PlanPrices>(`${environment.apiUrl}/api/v1/plans`).subscribe({
+      next: (prices) => { this.planPrices = prices; this.planLoading = false; },
+      error: () => {
+        this.planPrices = {
+          starter: { monthly: '97',  annual: '970',  annualMonthly: '81' },
+          pro:     { monthly: '197', annual: '1970', annualMonthly: '164' }
+        };
+        this.planLoading = false;
+      }
+    });
+  }
+
+  startCheckout(): void {
+    if (this.checkoutLoading || !this.planPrices) return;
+    this.checkoutLoading = true;
+    this.checkoutError = '';
+    const headers = this.auth.authHeaders();
+
+    this.http.post<{ paymentUrl: string }>(
+      `${environment.apiUrl}/api/v1/client-billing/checkout`,
+      { planTier: this.selectedPlanTier, billingCycle: this.selectedCycle },
+      { headers }
+    ).subscribe({
+      next: (res) => {
+        this.checkoutLoading = false;
+        window.location.href = res.paymentUrl;
+      },
+      error: (err) => {
+        this.checkoutLoading = false;
+        this.checkoutError = err.error?.error || 'Erro ao iniciar pagamento. Tente novamente.';
+      }
+    });
+  }
+
+  cancelSubscription(): void {
+    if (this.cancelLoading) return;
+    this.cancelLoading = true;
+    this.cancelError = '';
+    const headers = this.auth.authHeaders();
+
+    this.http.post<{ message: string; canceledAt: string; periodEnd: string }>(
+      `${environment.apiUrl}/api/v1/client-billing/cancel`,
+      {},
+      { headers }
+    ).subscribe({
+      next: (res) => {
+        this.cancelLoading = false;
+        this.cancelConfirm = false;
+        if (this.billingStatus) {
+          this.billingStatus.canceled = true;
+          this.billingStatus.canceledAt = res.canceledAt;
+          this.billingStatus.periodEnd = res.periodEnd;
+        }
+      },
+      error: (err) => {
+        this.cancelLoading = false;
+        this.cancelError = err.error?.error || 'Erro ao cancelar. Tente novamente.';
+      }
+    });
+  }
+
   copyCode(): void {
-    const code = this.referralStats?.code || this.client?.referralCode;
+    const code = this.referralStats?.referralCode || this.client?.referralCode;
     if (!code) return;
     try {
       navigator.clipboard.writeText(code);
       this.copied = true;
       setTimeout(() => this.copied = false, 2000);
+    } catch {
+      // noop
+    }
+  }
+
+  copyReferralLink(): void {
+    const code = this.client?.referralCode;
+    if (!code) return;
+    try {
+      navigator.clipboard.writeText(`https://spark.akroma.com.br/cadastro?ref=${code}`);
+      this.copiedLink = true;
+      setTimeout(() => this.copiedLink = false, 2000);
     } catch {
       // noop
     }

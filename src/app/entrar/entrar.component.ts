@@ -5,18 +5,19 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ClientAuthService } from '../core/services/client-auth.service';
 import { SeoService } from '../core/services/seo.service';
+import { SparkTopbarComponent } from '../shared/components/topbar/topbar.component';
 
 @Component({
   selector: 'app-entrar',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, SparkTopbarComponent],
   template: `
+    <app-spark-topbar></app-spark-topbar>
+
     <section class="login-section">
       <div class="login-container">
-        <a routerLink="/" class="login-logo">
-          <img src="assets/images/logo-akroma-horizontal.png" alt="Akroma" />
-        </a>
         <h1 class="login-title">Entrar na sua conta</h1>
+
         <p class="login-subtitle">Acesse seu painel do Akroma Spark.</p>
 
         <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
@@ -47,16 +48,17 @@ import { SeoService } from '../core/services/seo.service';
     </section>
   `,
   styles: [`
-    :host { display: block; background: #050912; min-height: 100vh; }
+    :host { display: block; background: #050912; }
     .login-section {
-      padding: 48px 16px; min-height: 100vh;
+      height: 100vh;
+      padding-top: 72px;
+      box-sizing: border-box;
       display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
     }
     .login-container {
       max-width: 420px; width: 100%; text-align: center;
     }
-    .login-logo { display: inline-block; margin-bottom: 24px; }
-    .login-logo img { height: 32px; }
     .login-title {
       font-size: clamp(22px, 3vw, 28px); font-weight: 800; color: #fff;
       margin: 0 0 8px;

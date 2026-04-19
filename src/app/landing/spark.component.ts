@@ -7,6 +7,7 @@ import { environment } from '../../environments/environment';
 import { SeoService } from '../core/services/seo.service';
 import { SparkTopbarComponent } from '../shared/components/topbar/topbar.component';
 import { SparkFooterComponent } from '../shared/components/footer/footer.component';
+import { DEMO_POSTS } from './demo-posts.data';
 
 interface NicheInfo {
   value: string;
@@ -156,6 +157,135 @@ const NICHES: NicheInfo[] = [
   }
 ];
 
+/**
+ * Fallback mock posts — used ONLY when demo-posts.data.ts is still empty
+ * (i.e. the seed script hasn't been run yet). Once DEMO_POSTS is populated,
+ * the real backend-generated posts take over and these are ignored.
+ */
+interface DemoPost {
+  handle: string;          // @username shown in header + caption
+  displayName: string;     // brand/person name below handle
+  image: string;           // Unsplash URL (free, no-auth CDN)
+  caption: string;         // PT-BR caption with @mention prefix
+  commentsPool: string[];  // pool of random comments (2 picked each click)
+}
+
+const FALLBACK_DEMOS: Record<string, DemoPost> = {
+  fitness: {
+    handle: 'gympower.oficial',
+    displayName: 'GymPower Academia',
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=900&q=80',
+    caption: 'Dia de leg — e sim, voce vai sentir amanha.\n\nTres verdades sobre treino de pernas que ninguem te conta:\n\n1. Nao precisa fazer 12 exercicios. Agachamento + leg press + stiff ja matam.\n2. Progredir peso > cansar no aparelho. Anota. Bate a marca da semana passada.\n3. Se nao doeu amanha, voce pegou leve demais.\n\nSua perna vai agradecer em 3 meses. Salva esse post.\n\n#treinodeperna #leg #gym #academia #fitness #treino #workout',
+    commentsPool: [
+      'Anotado mestre 🔥',
+      'Caiu como uma luva, acabei de voltar do leg day 😅',
+      'Salvo!',
+      'Stiff é o melhor exercicio, concordo',
+      'Preciso voltar pra academia',
+      'Amanhã não ando kkkk',
+      'Conteudo bom demais',
+    ],
+  },
+  tecnologia: {
+    handle: 'devpro.br',
+    displayName: 'DevPro',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80',
+    caption: 'A OpenAI soltou GPT-5. E ninguem percebeu que mudou o jogo.\n\nNao e sobre ser mais rapido. E sobre agentes que executam tarefas de dias em minutos.\n\n3 coisas que ja funcionam HOJE:\n- Code review automatico em PRs\n- Analise de CSV de 500k linhas sem abrir excel\n- Pesquisa de mercado com fontes citadas\n\nQuem nao automatizar em 2026 vai ficar pra tras. Nao e ameaca, e matematica.\n\n#tecnologia #ia #gpt5 #openai #dev #programacao #automacao',
+    commentsPool: [
+      'Verdade, a gente subestima',
+      'Comecei a usar pra code review, game changer',
+      'Preciso estudar isso urgente',
+      'Salvo pra ler depois 🔖',
+      'Conteudo top',
+      'Bom demais 👏',
+    ],
+  },
+  gastronomia: {
+    handle: 'chefana.cozinha',
+    displayName: 'Chef Ana Ribeiro',
+    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=80',
+    caption: 'Risoto de cogumelos em 25 minutos. Sem mentira.\n\nO segredo que restaurante italiano nao quer que voce saiba: nao precisa ficar mexendo 40 minutos. A cada concha de caldo, mexer 3 vezes e deixar quieto. Ponto.\n\nIngredientes (serve 4):\n- 2 xicaras arroz arborio\n- 300g cogumelos variados\n- 1L caldo de legumes quente\n- 1/2 xicara vinho branco\n- 50g parmesao\n- Manteiga gelada no final (truque!)\n\nSalva pra fazer no fim de semana 🍄\n\n#risoto #receita #gastronomia #cozinha #italiana #chef #foodie',
+    commentsPool: [
+      'Que delicia 🤤',
+      'Vou fazer domingo, obrigada!',
+      'Manteiga gelada no final muda tudo mesmo',
+      'Salvo! 🔖',
+      'Receita top, ja quero provar',
+      'A fome que deu agora...',
+    ],
+  },
+  moda: {
+    handle: 'lolastyle.br',
+    displayName: 'Lola Martins',
+    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80',
+    caption: '3 pecas que nunca saem de moda (e todo armario precisa):\n\n1. Camisa branca bem cortada — serve pra trabalho, jantar, viagem\n2. Calca preta reta — 10x mais elegante que skinny\n3. Blazer oversized neutro — eleva qualquer look basico\n\nMinimalismo nao e ter pouco. E ter certo.\n\nSalva esse carrossel pra montar o guarda-roupa do outono 🍂\n\n#moda #estilo #looks #minimalismo #fashion #outfit #styling',
+    commentsPool: [
+      'Amei as dicas 😍',
+      'Blazer oversized é tudo mesmo',
+      'Preciso de um blazer assim',
+      'Salvo ✨',
+      'Conteudo lindo',
+      'Cada dia que passa gosto mais do seu feed',
+    ],
+  },
+  juridico: {
+    handle: 'dra.patricia.costa',
+    displayName: 'Dra. Patricia Costa — OAB/SP',
+    image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=900&q=80',
+    caption: 'Voce sabia? Atraso de voo de mais de 4h da direito a indenizacao.\n\nO que a companhia nao te conta:\n\n✅ 4h ou mais = dano moral (media R$ 5.000 a R$ 15.000)\n✅ Bagagem extraviada = restituicao + danos\n✅ Reacomodacao so em classe igual ou superior — nunca inferior\n\nGuarde: cartao de embarque, protocolo da reclamacao e comprovantes de gastos extras.\n\nConteudo informativo. Cada caso deve ser analisado individualmente.\n\n#direito #advogado #consumidor #voo #indenizacao #oab',
+    commentsPool: [
+      'Nossa, nao sabia disso',
+      'Salvei! 🔖',
+      'Obrigada pela informacao',
+      'Vou acionar a companhia',
+      'Conteudo utilissimo',
+      'Aconteceu comigo ano passado, perdi o prazo 😭',
+    ],
+  },
+  imobiliario: {
+    handle: 'rafael.imoveis',
+    displayName: 'Rafael Mendes — Corretor CRECI 54321',
+    image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80',
+    caption: 'Comprar ou alugar em 2026? A conta real (sem achismo).\n\nImovel de R$ 500k:\n- Financiamento 30 anos, entrada 20% = parcela ~R$ 4.200/mes\n- Aluguel equivalente = R$ 2.500/mes\n- Diferenca de R$ 1.700 investida no Tesouro Selic = R$ 1.2MM em 30 anos\n\nMoral: comprar nao e sempre a melhor opcao. Depende do seu plano de 10 anos.\n\nChame no direct pra simular o seu caso especifico 📲\n\n#imovel #comprar #alugar #investimento #financiamento #mercadoimobiliario',
+    commentsPool: [
+      'Conta bem feita 👏',
+      'Salvei pra mostrar pra minha esposa',
+      'Conteudo raro, a maioria so vende',
+      'Quero simular o meu caso',
+      'Chamando no direct',
+      'Info valiosa, obrigado',
+    ],
+  },
+  educacao: {
+    handle: 'profmarcos.estudos',
+    displayName: 'Prof. Marcos — Metodo de Estudos',
+    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=900&q=80',
+    caption: 'Tecnica Feynman: como aprender QUALQUER coisa em metade do tempo.\n\n4 passos (cientificamente comprovados):\n\n1. Escolha um topico\n2. Explique como se fosse pra uma crianca de 10 anos\n3. Identifique onde voce travou (= lacuna de conhecimento)\n4. Simplifique ainda mais\n\nSe voce nao consegue explicar simples, voce nao entendeu direito.\n\nFuncao exponencial, calculo integral, macroeconomia — funciona pra tudo.\n\nSalva e aplica hoje 📚\n\n#estudos #aprendizado #feynman #metodo #vestibular #concurso #produtividade',
+    commentsPool: [
+      'Testei e funciona mesmo',
+      'Salvei!',
+      'Preciso aplicar urgente, obrigada prof',
+      'Conteudo de ouro 🥇',
+      'Passei no enem usando isso',
+      'Compartilhando com minha turma',
+    ],
+  },
+  saude: {
+    handle: 'dra.juliana.saude',
+    displayName: 'Dra. Juliana Alves — Nutrologa',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80',
+    caption: '5 sinais de que seu intestino esta pedindo socorro:\n\n1. Cansaco apos refeicoes (nao deveria acontecer)\n2. Gases frequentes / estufamento\n3. Pele com acne ou dermatite sem motivo\n4. Vontade de doce o dia inteiro\n5. Dorme mal mesmo cansado\n\n70% da imunidade esta no intestino. Cuidar dele e cuidar de TUDO: energia, pele, sono, humor.\n\nConteudo educativo. Procure um nutrologo ou gastro pra avaliacao individualizada.\n\n#saude #intestino #nutricao #bemestar #imunidade #medicina #probioticos',
+    commentsPool: [
+      'Me identifiquei nos 5 😭',
+      'Preciso de uma consulta urgente',
+      'Conteudo tao importante, obrigada dra',
+      'Salvo!',
+      'Intestino e tudo mesmo',
+      'Vou procurar um profissional',
+    ],
+  },
+};
+
 interface Plan {
   id: 'starter' | 'pro' | 'enterprise';
   name: string;
@@ -274,16 +404,54 @@ interface Plan {
               {{ demoLoading ? 'Gerando...' : 'Gerar post de exemplo' }}
             </button>
           </div>
-          <div class="demo-box__result" *ngIf="demoResult">
-            <div class="demo-box__topic">{{ demoResult.topic }}</div>
-            <div class="demo-box__caption">{{ demoResult.caption }}</div>
-            <div class="demo-box__meta">
-              <span class="demo-box__tag">Nicho: {{ demoResult.niche }}</span>
-              <span class="demo-box__tag">100% gerado por IA</span>
+
+          <!-- Instagram-style post mockup (fixed per niche, random likes/comments) -->
+          <div class="ig-post" *ngIf="demoPost" [class.ig-post--loading]="demoLoading">
+            <header class="ig-post__head">
+              <div class="ig-post__avatar">
+                <span>{{ demoPost.handle.charAt(0).toUpperCase() }}</span>
+              </div>
+              <div class="ig-post__who">
+                <span class="ig-post__handle">{{ demoPost.handle }}</span>
+                <span class="ig-post__name">{{ demoPost.displayName }}</span>
+              </div>
+              <svg class="ig-post__more" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/>
+              </svg>
+            </header>
+
+            <img class="ig-post__image" [src]="demoPost.image" alt="" loading="lazy">
+
+            <div class="ig-post__actions">
+              <div class="ig-post__actions-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </div>
+              <svg class="ig-post__save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
             </div>
+
+            <div class="ig-post__likes">
+              Curtido por <strong>{{ demoPost.firstLiker }}</strong> e outras <strong>{{ demoPost.likes | number:'1.0-0':'pt-BR' }} pessoas</strong>
+            </div>
+
+            <p class="ig-post__caption">
+              <strong>{{ demoPost.handle }}</strong>
+              <span class="ig-post__caption-text">{{ demoPost.caption }}</span>
+            </p>
+
+            <div class="ig-post__comments">
+              <div class="ig-post__comment" *ngFor="let c of demoPost.comments">
+                <strong>{{ c.handle }}</strong> {{ c.text }}
+              </div>
+              <div class="ig-post__all-comments">Ver todos os {{ demoPost.commentCount }} comentarios</div>
+            </div>
+
+            <div class="ig-post__time">HA {{ demoPost.hoursAgo }} HORAS</div>
           </div>
-          <div class="demo-box__result" *ngIf="demoError">
-            <p style="color:#ef4444;">{{ demoError }}</p>
+
+          <div class="ig-post-empty" *ngIf="!demoPost && !demoLoading">
+            Clique em <strong>Gerar post de exemplo</strong> pra ver como ficaria um post seu.
           </div>
         </div>
       </div>
@@ -372,7 +540,7 @@ interface Plan {
     </section>
 
     <!-- NICHES -->
-    <section class="spark-niches">
+    <section id="solucoes" class="spark-niches spark-section-target">
       <div class="container">
         <span class="label">SOLUCOES POR NICHO</span>
         <h2 class="section-title">Feito para o seu mercado</h2>
@@ -406,7 +574,7 @@ interface Plan {
           <ul class="niche-detail__benefits">
             <li *ngFor="let b of activeNiche.benefits">{{ b }}</li>
           </ul>
-          <a routerLink="/cadastro" [queryParams]="{ niche: activeNiche.value }" class="btn btn--spark">
+          <a routerLink="/cadastro" [queryParams]="{ niche: activeNiche.value }" class="btn btn--spark btn--full">
             Comecar teste gratis no nicho {{ activeNiche.label }} &rarr;
           </a>
         </div>
@@ -489,7 +657,7 @@ interface Plan {
     <section class="spark-cta">
       <div class="container spark-cta__inner">
         <h2 class="spark-cta__title">Pronto para automatizar seu social media?</h2>
-        <p class="spark-cta__desc">Trial PRO de 7 dias gratis. Sem cartao. Sem compromisso.</p>
+        <p class="spark-cta__desc">Trial Starter de 7 dias gratis. Sem cartao. Sem compromisso.</p>
         <a routerLink="/cadastro" class="btn btn--spark btn--lg">Comecar agora &rarr;</a>
       </div>
     </section>
@@ -597,7 +765,7 @@ interface Plan {
       border: 1px solid rgba(255,255,255,0.15);
     }
     .btn--outline:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
-    .btn--full { width: 100%; }
+    .btn--full { width: 100%; box-sizing: border-box; }
     .btn--lg { padding: 18px 36px; font-size: 17px; }
 
     /* Social Proof */
@@ -636,13 +804,13 @@ interface Plan {
       max-width: 680px; margin: 0 auto; padding: 32px; border-radius: 20px;
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
     }
-    .demo-box__input-row { display: flex; gap: 12px; margin-bottom: 20px; position: relative; }
+    .demo-box__input-row { display: flex; gap: 12px; margin-bottom: 20px; position: relative; align-items: stretch; }
 
     /* Custom dropdown — dark theme, no native select quirks */
     .demo-dropdown { flex: 1; position: relative; }
     .demo-dropdown__trigger {
-      width: 100%; display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; border-radius: 10px; font-size: 15px; font-weight: 500;
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; border-radius: 10px; font-size: 15px; font-weight: 500;
       background: rgba(255,255,255,0.06); color: #fff;
       border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
       transition: border-color 0.15s, background 0.15s;
@@ -681,6 +849,75 @@ interface Plan {
       padding: 4px 10px; border-radius: 6px;
     }
 
+    /* ── Instagram post mockup ───────────────────────────────────────────── */
+    .ig-post-empty {
+      margin-top: 20px; padding: 28px; border-radius: 14px;
+      background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.08);
+      color: #6b7280; text-align: center; font-size: 14px;
+    }
+    .ig-post-empty strong { color: #fbbf24; font-weight: 600; }
+    .ig-post {
+      margin: 20px auto 0; max-width: 480px;
+      background: #ffffff; color: #262626;
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid #dbdbdb;
+      box-shadow: 0 12px 40px -12px rgba(0,0,0,0.6);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      transition: opacity 0.2s;
+    }
+    .ig-post--loading { opacity: 0.5; }
+    .ig-post__head {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+    }
+    .ig-post__avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #f09433, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 14px;
+      padding: 2px;
+    }
+    .ig-post__avatar span {
+      width: 100%; height: 100%; border-radius: 50%;
+      background: #fff; color: #262626;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ig-post__who { flex: 1; display: flex; flex-direction: column; line-height: 1.2; }
+    .ig-post__handle { font-size: 14px; font-weight: 600; color: #262626; }
+    .ig-post__name { font-size: 12px; color: #8e8e8e; }
+    .ig-post__more { width: 20px; height: 20px; color: #262626; cursor: pointer; }
+    .ig-post__image {
+      display: block; width: 100%; aspect-ratio: 4 / 5;
+      object-fit: contain; background: #efefef;
+    }
+    .ig-post__actions {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 14px 4px;
+    }
+    .ig-post__actions svg { width: 24px; height: 24px; color: #262626; cursor: pointer; }
+    .ig-post__actions-left { display: flex; gap: 14px; }
+    .ig-post__likes {
+      padding: 4px 14px; font-size: 14px; color: #262626;
+    }
+    .ig-post__likes strong { font-weight: 600; }
+    .ig-post__caption {
+      padding: 4px 14px; font-size: 14px; color: #262626; line-height: 1.4;
+      margin: 0; white-space: pre-line;
+    }
+    .ig-post__caption strong { font-weight: 600; margin-right: 6px; }
+    .ig-post__caption-text { color: #262626; }
+    .ig-post__comments { padding: 6px 14px 4px; }
+    .ig-post__comment { font-size: 14px; color: #262626; line-height: 1.4; margin-bottom: 2px; }
+    .ig-post__comment strong { font-weight: 600; margin-right: 6px; }
+    .ig-post__all-comments {
+      font-size: 14px; color: #8e8e8e; margin: 4px 0; cursor: pointer;
+    }
+    .ig-post__time {
+      padding: 6px 14px 14px;
+      font-size: 10px; color: #8e8e8e; letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+
     /* Steps */
     .spark-steps { padding: 100px 0; background: #0a0a12; }
     .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
@@ -691,7 +928,13 @@ interface Plan {
     }
     .step-card:hover { border-color: rgba(251,191,36,0.25); }
     .step-card__num {
-      font-size: 36px; font-weight: 900; color: rgba(251,191,36,0.2); display: block; margin-bottom: 16px;
+      font-size: 40px; font-weight: 900; display: block; margin-bottom: 16px;
+      color: #fbbf24;
+      text-shadow:
+        0 0 8px rgba(251,191,36,0.55),
+        0 0 20px rgba(251,191,36,0.35),
+        0 0 40px rgba(245,158,11,0.25);
+      letter-spacing: 0.02em;
     }
     .step-card__title { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 10px; }
     .step-card__desc { font-size: 14px; color: #9ca3af; line-height: 1.6; }
@@ -818,8 +1061,9 @@ interface Plan {
       font-size: 12px; color: #9ca3af; margin-top: 4px;
     }
     .pricing-card--featured {
-      background: rgba(251,191,36,0.06); border-color: rgba(251,191,36,0.25);
-      transform: scale(1.04);
+      background: rgba(251,191,36,0.06);
+      border-color: rgba(251,191,36,0.45);
+      box-shadow: 0 12px 40px -12px rgba(251,191,36,0.25);
     }
     .pricing-card__cta { margin-top: auto; }
     .pricing-card__badge {
@@ -883,7 +1127,6 @@ interface Plan {
       .steps-grid { grid-template-columns: 1fr 1fr; }
       .features-grid { grid-template-columns: 1fr; }
       .pricing-grid { grid-template-columns: 1fr; }
-      .pricing-card--featured { transform: none; }
       .spark-hero { padding: 120px 0 80px; }
       .testimonials-grid { grid-template-columns: 1fr; }
       .demo-box__input-row { flex-direction: column; }
@@ -1008,8 +1251,26 @@ export class SparkComponent implements OnInit, AfterViewInit, OnDestroy {
   demoNiche = 'fitness';
   demoDropdownOpen = false;
   demoLoading = false;
-  demoResult: { caption: string; topic: string; niche: string } | null = null;
-  demoError: string | null = null;
+
+  /** Rendered Instagram mockup. Fixed image/caption per niche; likes & comments randomized. */
+  demoPost: {
+    handle: string;
+    displayName: string;
+    image: string;
+    caption: string;
+    likes: number;
+    firstLiker: string;
+    comments: { handle: string; text: string }[];
+    commentCount: number;
+    hoursAgo: number;
+  } | null = null;
+
+  /** Pool of handles used as "first liker" + random commenters. */
+  private readonly LIKER_POOL = [
+    'andreey.dev', 'mariana.souza', 'joao_costa', 'lu.fernandes',
+    'pedrohenrique', 'bea.alves', 'carolinasilva', 'tiago.mr',
+    'rafaela.ok', 'leo.m', 'ana.paula_', 'gabizinha.bc',
+  ];
 
   expandedNiche: string | null = null;
 
@@ -1043,22 +1304,72 @@ export class SparkComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  generateDemo() {
-    this.demoLoading = true;
-    this.demoResult = null;
-    this.demoError = null;
+  /** Pick N unique random items from a pool. */
+  private pickRandom<T>(pool: T[], n: number): T[] {
+    const copy = [...pool];
+    const out: T[] = [];
+    for (let i = 0; i < n && copy.length; i++) {
+      const idx = Math.floor(Math.random() * copy.length);
+      out.push(copy.splice(idx, 1)[0]);
+    }
+    return out;
+  }
 
-    this.http.post<any>(`${environment.apiUrl}/api/v1/demo/generate`, {
-      niche: this.demoNiche
-    }).subscribe({
-      next: (res) => {
-        this.demoResult = res;
-        this.demoLoading = false;
-      },
-      error: (err) => {
-        this.demoError = err.error?.error || 'Falha ao gerar demonstracao. Tente novamente.';
-        this.demoLoading = false;
-      }
-    });
+  /** Random integer in [min, max] inclusive. */
+  private randInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  /**
+   * Build the mock Instagram post. Image + caption are fixed per niche;
+   * likes, first liker, comments and "hours ago" are randomized each click
+   * to feel alive without making any API calls.
+   *
+   * Priority: DEMO_POSTS (real backend-generated posts from seed script)
+   * falls back to FALLBACK_DEMOS (Unsplash stock + hand-written captions)
+   * when the seed script hasn't been run yet.
+   */
+  generateDemo() {
+    const real = DEMO_POSTS.find(p => p.niche === this.demoNiche);
+    const fallback = FALLBACK_DEMOS[this.demoNiche];
+
+    const data: DemoPost | null = real
+      ? {
+          handle: real.handle,
+          displayName: real.displayName,
+          image: real.image,
+          caption: real.caption,
+          commentsPool: (fallback?.commentsPool ?? [
+            'Salvei!', 'Conteudo top 👏', 'Muito bom', 'Top demais',
+            'Otimo ponto', 'Concordo 100%', 'Preciso pensar nisso',
+          ]),
+        }
+      : (fallback ?? null);
+
+    if (!data) return;
+
+    this.demoLoading = true;
+    // Brief loading state (~400ms) so the button feels responsive.
+    setTimeout(() => {
+      const likers = this.pickRandom(this.LIKER_POOL, 3);
+      const commentTexts = this.pickRandom(data.commentsPool, 2);
+      const commenters = this.pickRandom(
+        this.LIKER_POOL.filter(h => !likers.includes(h)),
+        2,
+      );
+
+      this.demoPost = {
+        handle: data.handle,
+        displayName: data.displayName,
+        image: data.image,
+        caption: data.caption,
+        likes: this.randInt(1240, 9870),
+        firstLiker: likers[0],
+        comments: commenters.map((h, i) => ({ handle: h, text: commentTexts[i] })),
+        commentCount: this.randInt(42, 318),
+        hoursAgo: this.randInt(2, 22),
+      };
+      this.demoLoading = false;
+    }, 400);
   }
 }

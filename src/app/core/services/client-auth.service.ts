@@ -1,5 +1,5 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, tap } from 'rxjs';
@@ -77,6 +77,14 @@ export class ClientAuthService {
 
   getToken(): string | null {
     return this.isBrowser ? sessionStorage.getItem(TOKEN_KEY) : null;
+  }
+
+  /** Returns HttpHeaders with Bearer token for authenticated requests. */
+  authHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return token
+      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+      : new HttpHeaders();
   }
 
   getClient(): ClientInfo | null {

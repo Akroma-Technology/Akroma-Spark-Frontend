@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SeoService } from '../core/services/seo.service';
 
 interface NicheData {
@@ -216,6 +216,7 @@ const NICHES: Record<string, NicheData> = {
 })
 export class SparkNicheComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private seo = inject(SeoService);
   slug = '';
   data: NicheData | null = null;
@@ -231,13 +232,8 @@ export class SparkNicheComponent implements OnInit {
         description: this.data.subtitle,
       });
     } else {
-      // Unknown slug matched the :niche wildcard route. Noindex it so the
-      // 404-like state does not leak into search results.
-      this.seo.setPage({
-        title: 'Página não encontrada — Akroma Spark',
-        description: 'A página que você procura não existe.',
-        noindex: true,
-      });
+      // Unknown slug — treat as 404.
+      this.router.navigateByUrl('/404', { skipLocationChange: true });
     }
   }
 }
