@@ -266,7 +266,7 @@ export class ContatoComponent {
   ];
 
   private http = inject(HttpClient);
-  private readonly CONTACT_API = 'https://jhwyck4q2p.us-east-1.awsapprunner.com/api/v1/contact';
+  private readonly CONTACT_API = 'https://trp1e71ohd.execute-api.us-east-1.amazonaws.com/api/v1/contact';
 
   form = { name: '', email: '', phone: '', company: '', niche: '', message: '' };
   sending = false;
